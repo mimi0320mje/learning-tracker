@@ -2,7 +2,7 @@
 
 A personal, dark-themed web app to track learning and online certifications, presented as a professional portfolio. Static HTML/CSS/JS — no build tools, no server, free to host.
 
-**Live site:** _(GitHub Pages link added after publishing)_
+**Live site:** https://mimi0320mje.github.io/learning-tracker/
 
 ## Features
 
