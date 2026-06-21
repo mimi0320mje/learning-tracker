@@ -48,6 +48,13 @@
       "date": "June 2026",
       "tech": "Python, Gmail API, Claude AI",
       "description": "An AI assistant that keeps your Gmail tidy: it reads new mail, sorts it into labels, moves adverts to a holding folder and only deletes them after a safety delay. Starred emails are never touched."
+    },
+    {
+      "name": "ParkCompare",
+      "link": "https://mimi0320mje.github.io/parkcompare/",
+      "date": "June 2026",
+      "tech": "HTML, CSS, JavaScript, PWA, OpenStreetMap",
+      "description": "A free worldwide parking price-comparison app. Detects your location, shows nearby car parks on a map sorted by nearest or cheapest, and a Navigate button opens Google Maps with your route pre-filled. Verified prices for Birmingham, with locations everywhere from OpenStreetMap."
     }
   ]
 }
