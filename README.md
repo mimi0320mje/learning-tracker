@@ -37,6 +37,13 @@ Open `index.html` in any browser, or visit the live link.
 - `data.json` — published certification data (and optional custom password hash)
 - `README.md`, `.gitignore`
 
-## Roadmap (Phase 2)
+## Roadmap (Phase 2) — Overview tab
 
-- **Overview** tab: personal details, plus work & study experience
+Turn the **Overview** placeholder into a personal intro, editable and published just like Projects/Certifications. Planned layout:
+
+1. **About me** — a short headline/role, a 2–4 sentence bio, optional location, and link buttons (LinkedIn, GitHub, etc.).
+2. **Work experience** — a timeline of roles: role · company · dates · description.
+3. **Education** — a timeline of schools: school · program · dates · description.
+4. *(Optional)* **Skills** — small tag pills.
+
+Everything stays password-gated and saves to `data.json` the same way the other tabs do.
