@@ -1,6 +1,6 @@
 # Learning & Certification Tracker
 
-A personal, dark-themed web app to track learning and online certifications, presented as a professional portfolio. Static HTML/CSS/JS — no build tools, no server, free to host.
+A personal, dark-themed web app to track learning and online certifications, presented as a professional portfolio. Static HTML/CSS/JS hosted free on GitHub Pages, with a free Firebase (Firestore) backend so edits go live everywhere in real time.
 
 **Live site:** https://mimi0320mje.github.io/learning-tracker/
 
@@ -11,30 +11,41 @@ A personal, dark-themed web app to track learning and online certifications, pre
 - ✏️ Password-protected **Edit mode** to add / edit / delete:
   - **Certifications** — name, link, completion date
   - **Projects** — name, link, date/year, tech/tools tags, description
-- 💾 Edits save instantly in your browser, plus **Export** to publish for everyone
+- ☁️ Edits save to the cloud and appear **instantly for every visitor and on every device** — no manual publishing
 - ✉️ **Contact me** button (email is never shown on the page)
 
 ## How to use
 
-Open `index.html` in any browser, or visit the live link.
+Visit the live link (or open `index.html`).
 
-### Editing your certifications
+### Editing
 
 1. Click **✎ Edit** (top-right) and enter your password.
-2. Add, edit, or delete certifications. Changes save in your browser automatically.
-3. To make changes appear for **everyone / on all your devices**, click **⬇ Export data.json**, then upload that file to this repo (replace the existing `data.json`). The live site updates within a minute or two.
+2. Add, edit, or delete certifications and projects.
+3. That's it — each change saves to the cloud and is **live everywhere immediately**. (Click **✓ Done** to lock editing again.)
 
-### Password
+The **⬇ Backup** button downloads a copy of your data as a safety net (optional).
+
+### Password & security
 
 - Default password: **Mia666%**
-- You can change it in Edit mode (**🔑 Change password**). After changing, **Export & publish data.json** so the new password applies everywhere.
-- **Recovery:** `Mia666%` always works as a built-in master key, even after you change the password.
-- **Important — this is light protection only.** The page runs entirely in the browser, so the password is not bank-level security; it only keeps casual visitors from editing. The real, strong lock is your **GitHub account** — only you can log in and change the published files. If you ever get locked out, just edit `data.json` (or the password) directly in GitHub.
+- Change it anytime in Edit mode (**🔑 Change password**).
+- **Anyone can view** the portfolio, but **only you can edit** it (enforced by Firebase Auth + Firestore security rules — your email is the only account allowed to write).
+- **Forgot your password?** Reset it from the Firebase console (Authentication → Users) at https://console.firebase.google.com.
+
+## How it's wired (for future reference)
+
+- **Backend:** Firebase project `learning-tracker-944f8` (free Spark tier).
+- **Data:** Firestore collection `portfolio`, single document `data` → `{ certifications, projects }`. The page subscribes with `onSnapshot` for real-time updates.
+- **Auth:** Firebase Email/Password. One editor account (`miachen1155665@gmail.com`); the password box signs into it behind the scenes.
+- **Security rule:** public read; write only when signed in as the editor email.
+- **Authorized domain** in Firebase Auth settings: `mimi0320mje.github.io`.
+- `data.json` is now only a fallback seed used before the cloud document exists.
 
 ## Files
 
-- `index.html` — the entire app (theme, tabs, edit UI, password, contact)
-- `data.json` — published certification data (and optional custom password hash)
+- `index.html` — the entire app (theme, tabs, edit UI, Firebase wiring, contact)
+- `data.json` — fallback seed data (cloud is the live source of truth)
 - `README.md`, `.gitignore`
 
 ## Roadmap (Phase 2) — Overview tab
@@ -46,4 +57,4 @@ Turn the **Overview** placeholder into a personal intro, editable and published 
 3. **Education** — a timeline of schools: school · program · dates · description.
 4. *(Optional)* **Skills** — small tag pills.
 
-Everything stays password-gated and saves to `data.json` the same way the other tabs do.
+Everything stays password-gated and saves to the cloud (Firestore) the same way the other tabs do.

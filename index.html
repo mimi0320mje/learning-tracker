@@ -388,10 +388,9 @@
     <!-- edit toolbar (only visible in edit mode) -->
     <div class="edit-toolbar">
       <span class="badge">✎ Edit mode</span>
+      <span id="save-status" style="font-size:12px;color:var(--accent);"></span>
       <span class="spacer"></span>
-      <button class="btn small" onclick="exportData()">⬇ Export data.json</button>
-      <button class="btn small" onclick="document.getElementById('import-file').click()">⬆ Import</button>
-      <input type="file" id="import-file" accept="application/json" style="display:none" onchange="importData(event)" />
+      <button class="btn small" onclick="backupData()">⬇ Backup</button>
       <button class="btn small" onclick="openChangePw()">🔑 Change password</button>
       <button class="btn small ghost" onclick="exitEdit()">Exit edit</button>
     </div>
@@ -500,7 +499,7 @@
   <div class="overlay" id="pw-overlay">
     <div class="modal">
       <h3>Enter password to edit</h3>
-      <p class="hint">Light protection — keeps casual visitors from editing.</p>
+      <p class="hint">Signs you in securely. Only you can edit; everyone else can view.</p>
       <div class="field">
         <label for="pw-input">Password</label>
         <input type="password" id="pw-input" autocomplete="off" onkeydown="if(event.key==='Enter') submitPw()" />
@@ -517,7 +516,7 @@
   <div class="overlay" id="cpw-overlay">
     <div class="modal">
       <h3>Change password</h3>
-      <p class="hint">Tip: <strong>Mia666%</strong> always works as a recovery key, even after you change this.</p>
+      <p class="hint">Forgot it? You can always reset it from your Firebase account (console.firebase.google.com).</p>
       <div class="field">
         <label for="cpw-current">Current password</label>
         <input type="password" id="cpw-current" autocomplete="off" />
@@ -538,52 +537,87 @@
     </div>
   </div>
 
+  <!-- Firebase (compat build so it works with the inline onclick handlers) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
   <script>
-    // ---- config ----
-    // Permanent master/recovery key = SHA-256("Mia666%"). Always works.
-    const MASTER_HASH = "2879c73d50502355849bf66cb4c00b3925c464fc6d3c5b2403f9c4fa6b951e01";
-    const LS_DATA = "lt_data_v1";
-    const LS_PW = "lt_custompw_v1";
+    // ---- Firebase config (safe to be public — the security rule is what protects the data) ----
+    const firebaseConfig = {
+      apiKey: "AIzaSyDHXAQkk5mDSYw-mgzkrlUA1QNcQfjz2Po",
+      authDomain: "learning-tracker-944f8.firebaseapp.com",
+      projectId: "learning-tracker-944f8",
+      storageBucket: "learning-tracker-944f8.firebasestorage.app",
+      messagingSenderId: "151516258369",
+      appId: "1:151516258369:web:73c2f3fd715421b780a6c0"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const DOC = db.collection("portfolio").doc("data");
+    const EDITOR_EMAIL = "miachen1155665@gmail.com"; // the one account allowed to edit
+
     const CONTACT_USER = "miachen1155665"; // email assembled at runtime, never in markup
     const CONTACT_DOMAIN = "gmail.com";
 
     let data = { certifications: { AI: [] }, projects: [] };
     let currentCat = "AI";
+    let cloudReady = false; // true once the Firestore document exists
 
-    // ---- hashing ----
-    async function sha256(text) {
-      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
-    }
-
-    // ---- data load/save ----
-    async function loadData() {
-      const local = localStorage.getItem(LS_DATA);
-      if (local) {
-        try { data = JSON.parse(local); } catch (e) { /* fall through */ }
-      } else {
-        try {
-          const res = await fetch("data.json", { cache: "no-store" });
-          if (res.ok) {
-            const json = await res.json();
-            if (json.certifications) data = json;
-            // adopt published custom password if present and none saved locally
-            if (json.passwordHash && !localStorage.getItem(LS_PW)) {
-              localStorage.setItem(LS_PW, json.passwordHash);
-            }
-          }
-        } catch (e) { /* keep default */ }
-      }
+    function normalizeData() {
       if (!data.certifications) data.certifications = { AI: [] };
       if (!data.certifications.AI) data.certifications.AI = [];
       if (!Array.isArray(data.projects)) data.projects = [];
     }
 
-    function saveLocal() {
-      const out = JSON.parse(JSON.stringify(data));
-      const pw = localStorage.getItem(LS_PW);
-      if (pw) out.passwordHash = pw;
-      localStorage.setItem(LS_DATA, JSON.stringify(out));
+    // ---- realtime load from the cloud (live across all devices/visitors) ----
+    function startRealtime() {
+      DOC.onSnapshot(snap => {
+        if (snap.exists) {
+          const d = snap.data();
+          data = { certifications: d.certifications, projects: d.projects };
+          cloudReady = true;
+          normalizeData();
+          renderCerts();
+          renderProjects();
+        } else {
+          // nothing in the cloud yet — show the seed file so the page isn't empty
+          loadSeed();
+        }
+      }, err => {
+        console.error("Firestore read failed:", err);
+        loadSeed();
+      });
+    }
+
+    // fallback seed used only before the cloud document exists
+    async function loadSeed() {
+      try {
+        const res = await fetch("data.json", { cache: "no-store" });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.certifications) data = { certifications: json.certifications, projects: json.projects || [] };
+        }
+      } catch (e) { /* keep default */ }
+      normalizeData();
+      renderCerts();
+      renderProjects();
+    }
+
+    // ---- save to the cloud (requires being signed in) ----
+    async function saveCloud() {
+      const status = document.getElementById("save-status");
+      try {
+        if (status) status.textContent = "Saving…";
+        await DOC.set({ certifications: data.certifications, projects: data.projects });
+        cloudReady = true;
+        if (status) { status.textContent = "Saved ✓ (live everywhere)"; setTimeout(() => { status.textContent = ""; }, 2200); }
+      } catch (e) {
+        console.error("Save failed:", e);
+        if (status) status.textContent = "";
+        alert("Could not save: " + (e && e.message ? e.message : e) + "\n\nMake sure you're signed in (click Edit and enter your password).");
+      }
     }
 
     // ---- rendering ----
@@ -675,9 +709,10 @@
       renderCerts();
     }
 
-    // ---- edit mode ----
+    // ---- edit mode (Firebase Auth) ----
     function onEditButton() {
       if (document.body.classList.contains("editing")) { exitEdit(); return; }
+      if (auth.currentUser) { enterEdit(); return; } // already signed in this session
       openPw();
     }
     function openPw() {
@@ -690,27 +725,31 @@
 
     async function submitPw() {
       const val = document.getElementById("pw-input").value;
-      const hash = await sha256(val);
-      const custom = localStorage.getItem(LS_PW);
-      if (hash === MASTER_HASH || (custom && hash === custom)) {
+      const msg = document.getElementById("pw-msg");
+      msg.textContent = "Checking…";
+      try {
+        await auth.signInWithEmailAndPassword(EDITOR_EMAIL, val);
         closePw();
         enterEdit();
-      } else {
-        document.getElementById("pw-msg").textContent = "Incorrect password. Try again.";
+      } catch (e) {
+        msg.textContent = "Incorrect password. Try again.";
       }
     }
 
     function enterEdit() {
       document.body.classList.add("editing");
       document.getElementById("edit-btn").textContent = "✓ Done";
+      // first time ever: publish the seed content so visitors see it too
+      if (!cloudReady && auth.currentUser) saveCloud();
       renderCerts();
       renderProjects();
     }
-    function exitEdit() {
+    async function exitEdit() {
       document.body.classList.remove("editing");
       document.getElementById("edit-btn").textContent = "✎ Edit";
       closeCertForm();
       closeProjForm();
+      try { await auth.signOut(); } catch (e) { /* ignore */ }
       renderCerts();
       renderProjects();
     }
@@ -748,7 +787,7 @@
       const entry = { name, link, date };
       if (idx >= 0) data.certifications[currentCat][idx] = entry;
       else data.certifications[currentCat].push(entry);
-      saveLocal();
+      saveCloud();
       closeCertForm();
       renderCerts();
     }
@@ -756,7 +795,7 @@
     function deleteCert(i) {
       if (!confirm("Delete this certification?")) return;
       data.certifications[currentCat].splice(i, 1);
-      saveLocal();
+      saveCloud();
       renderCerts();
     }
 
@@ -799,7 +838,7 @@
       const entry = { name, link, date, tech, description };
       if (idx >= 0) data.projects[idx] = entry;
       else data.projects.push(entry);
-      saveLocal();
+      saveCloud();
       closeProjForm();
       renderProjects();
     }
@@ -807,42 +846,19 @@
     function deleteProj(i) {
       if (!confirm("Delete this project?")) return;
       data.projects.splice(i, 1);
-      saveLocal();
+      saveCloud();
       renderProjects();
     }
 
-    // ---- export / import ----
-    function exportData() {
-      const out = JSON.parse(JSON.stringify(data));
-      const pw = localStorage.getItem(LS_PW);
-      if (pw) out.passwordHash = pw;
+    // ---- backup (optional safety net — downloads a copy of your data) ----
+    function backupData() {
+      const out = { certifications: data.certifications, projects: data.projects };
       const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url; a.download = "data.json";
+      a.href = url; a.download = "portfolio-backup.json";
       document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
-    }
-    function importData(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = e => {
-        try {
-          const json = JSON.parse(e.target.result);
-          if (!json.certifications) throw new Error("Missing certifications");
-          data = json;
-          if (json.passwordHash) localStorage.setItem(LS_PW, json.passwordHash);
-          if (!data.certifications.AI) data.certifications.AI = [];
-          saveLocal();
-          renderCerts();
-          alert("Imported successfully.");
-        } catch (err) {
-          alert("Could not import: " + err.message);
-        }
-      };
-      reader.readAsText(file);
-      event.target.value = "";
     }
 
     // ---- change password ----
@@ -860,18 +876,22 @@
       const nw = document.getElementById("cpw-new").value;
       const cf = document.getElementById("cpw-confirm").value;
       const m = document.getElementById("cpw-msg");
-      const curHash = await sha256(cur);
-      const custom = localStorage.getItem(LS_PW);
-      if (curHash !== MASTER_HASH && !(custom && curHash === custom)) {
-        m.className = "msg error"; m.textContent = "Current password is incorrect."; return;
-      }
-      if (nw.length < 4) { m.className = "msg error"; m.textContent = "New password must be at least 4 characters."; return; }
+      if (nw.length < 6) { m.className = "msg error"; m.textContent = "New password must be at least 6 characters."; return; }
       if (nw !== cf) { m.className = "msg error"; m.textContent = "New passwords don't match."; return; }
-      const newHash = await sha256(nw);
-      localStorage.setItem(LS_PW, newHash);
-      saveLocal();
-      m.className = "msg ok"; m.textContent = "Password updated. Don't forget to Export & publish data.json!";
-      setTimeout(closeChangePw, 1800);
+      if (!auth.currentUser) { m.className = "msg error"; m.textContent = "Please enter edit mode first."; return; }
+      m.className = "msg"; m.textContent = "Updating…";
+      try {
+        const cred = firebase.auth.EmailAuthProvider.credential(EDITOR_EMAIL, cur);
+        await auth.currentUser.reauthenticateWithCredential(cred);
+        await auth.currentUser.updatePassword(nw);
+        m.className = "msg ok"; m.textContent = "Password updated — use the new one next time.";
+        setTimeout(closeChangePw, 1800);
+      } catch (e) {
+        m.className = "msg error";
+        m.textContent = (e.code === "auth/wrong-password" || e.code === "auth/invalid-credential")
+          ? "Current password is incorrect."
+          : ("Couldn't update: " + (e.message || e));
+      }
     }
 
     // ---- contact (email never in markup) ----
@@ -881,11 +901,9 @@
     }
 
     // ---- init ----
-    (async function init() {
+    (function init() {
       document.getElementById("year").textContent = new Date().getFullYear();
-      await loadData();
-      renderCerts();
-      renderProjects();
+      startRealtime();
     })();
   </script>
 </body>
