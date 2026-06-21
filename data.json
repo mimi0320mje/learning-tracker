@@ -12,5 +12,14 @@
         "date": "2026-05-02"
       }
     ]
-  }
+  },
+  "projects": [
+    {
+      "name": "Sip — Water Tracker PWA",
+      "link": "https://mimi0320mje.github.io/water-tracker/",
+      "date": "2026",
+      "tech": "HTML, CSS, JavaScript, PWA",
+      "description": "An installable web app to track daily water intake, with on-device storage and offline support."
+    }
+  ]
 }

@@ -7,8 +7,10 @@ A personal, dark-themed web app to track learning and online certifications, pre
 ## Features
 
 - 🌌 Galaxy dark theme (Inter font)
-- 🗂️ Tabs: **Certifications** (with an **AI** sub-category) and **Projects** (Phase 2 placeholder)
-- ✏️ Password-protected **Edit mode** to add / edit / delete certifications (name, link, completion date)
+- 🗂️ Tabs: **Overview** (Phase 2 placeholder), **Projects**, and **Certifications** (with an **AI** sub-category)
+- ✏️ Password-protected **Edit mode** to add / edit / delete:
+  - **Certifications** — name, link, completion date
+  - **Projects** — name, link, date/year, tech/tools tags, description
 - 💾 Edits save instantly in your browser, plus **Export** to publish for everyone
 - ✉️ **Contact me** button (email is never shown on the page)
 
@@ -37,5 +39,4 @@ Open `index.html` in any browser, or visit the live link.
 
 ## Roadmap (Phase 2)
 
-- About me / work & education sections
-- Real Projects content
+- **Overview** tab: personal details, plus work & study experience

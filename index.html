@@ -239,6 +239,9 @@
       font-weight: 500;
     }
     .cert-card .link-row a:hover { text-decoration: underline; }
+    .cert-card .desc { color: var(--muted); font-size: 14px; margin-top: 10px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .tag { font-size: 11px; color: var(--accent); background: var(--accent-soft); padding: 3px 9px; border-radius: 999px; }
     .card-actions { display: flex; gap: 8px; margin-top: 14px; }
 
     .empty {
@@ -312,7 +315,7 @@
     .modal .hint { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
     .field { margin-bottom: 14px; }
     .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-    .field input {
+    .field input, .field textarea {
       width: 100%;
       font-family: inherit;
       font-size: 14px;
@@ -324,7 +327,8 @@
       outline: none;
       transition: border-color 0.18s;
     }
-    .field input:focus { border-color: var(--accent); }
+    .field textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+    .field input:focus, .field textarea:focus { border-color: var(--accent); }
     .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
     .msg { font-size: 13px; margin-top: 4px; min-height: 18px; }
     .msg.error { color: var(--danger); }
@@ -375,8 +379,9 @@
   </header>
 
   <nav class="tabs">
-    <button class="tab active" data-tab="certifications" onclick="switchTab('certifications')">Certifications</button>
-    <button class="tab" data-tab="projects" onclick="switchTab('projects')">Projects</button>
+    <button class="tab" data-tab="overview" onclick="switchTab('overview')">Overview</button>
+    <button class="tab active" data-tab="projects" onclick="switchTab('projects')">Projects</button>
+    <button class="tab" data-tab="certifications" onclick="switchTab('certifications')">Certifications</button>
   </nav>
 
   <main class="wrap">
@@ -392,7 +397,7 @@
     </div>
 
     <!-- CERTIFICATIONS -->
-    <section class="panel active" id="panel-certifications">
+    <section class="panel" id="panel-certifications">
       <div class="subtabs" id="cert-subtabs">
         <button class="subtab active" data-cat="AI" onclick="switchCat('AI')">AI</button>
       </div>
@@ -433,10 +438,55 @@
     </section>
 
     <!-- PROJECTS -->
-    <section class="panel" id="panel-projects">
+    <section class="panel active" id="panel-projects">
+      <div class="section-head">
+        <div>
+          <h2>Projects</h2>
+          <p>Things I've designed and built.</p>
+        </div>
+        <button class="btn primary small editor-only" onclick="openProjForm()">+ Add project</button>
+      </div>
+
+      <!-- inline add/edit form -->
+      <div class="cert-form" id="proj-form">
+        <input type="hidden" id="proj-index" value="-1" />
+        <div class="field">
+          <label for="p-name">Project name</label>
+          <input type="text" id="p-name" placeholder="e.g. Sip — water tracker PWA" />
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="p-link">Link (URL)</label>
+            <input type="url" id="p-link" placeholder="https://..." />
+          </div>
+          <div class="field">
+            <label for="p-date">Date / year</label>
+            <input type="text" id="p-date" placeholder="e.g. 2026 or June 2026" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="p-tech">Tech / tools (comma separated)</label>
+          <input type="text" id="p-tech" placeholder="e.g. HTML, CSS, JavaScript" />
+        </div>
+        <div class="field">
+          <label for="p-desc">Description</label>
+          <textarea id="p-desc" rows="3" placeholder="What it does, your role, highlights..."></textarea>
+        </div>
+        <div class="msg error" id="proj-msg"></div>
+        <div class="modal-actions">
+          <button class="btn ghost small" onclick="closeProjForm()">Cancel</button>
+          <button class="btn primary small" onclick="saveProj()">Save</button>
+        </div>
+      </div>
+
+      <div class="grid" id="proj-grid"></div>
+    </section>
+
+    <!-- OVERVIEW (Phase 2 placeholder) -->
+    <section class="panel" id="panel-overview">
       <div class="placeholder">
-        <h2>Projects — coming soon</h2>
-        <p>This space is reserved for Phase 2: project write-ups and case studies.</p>
+        <h2>Overview — coming soon</h2>
+        <p>Phase 2: a little about me, plus my work &amp; study experience.</p>
       </div>
     </section>
   </main>
@@ -497,7 +547,7 @@
     const CONTACT_USER = "miachen1155665"; // email assembled at runtime, never in markup
     const CONTACT_DOMAIN = "gmail.com";
 
-    let data = { certifications: { AI: [] } };
+    let data = { certifications: { AI: [] }, projects: [] };
     let currentCat = "AI";
 
     // ---- hashing ----
@@ -526,6 +576,7 @@
       }
       if (!data.certifications) data.certifications = { AI: [] };
       if (!data.certifications.AI) data.certifications.AI = [];
+      if (!Array.isArray(data.projects)) data.projects = [];
     }
 
     function saveLocal() {
@@ -577,11 +628,46 @@
       }).join("");
     }
 
+    function renderProjects() {
+      const list = data.projects || [];
+      const grid = document.getElementById("proj-grid");
+      if (list.length === 0) {
+        grid.innerHTML = '<div class="empty">No projects yet. ' +
+          (document.body.classList.contains("editing") ? 'Click “+ Add project” to add one.' : 'Check back soon!') +
+          '</div>';
+        return;
+      }
+      grid.innerHTML = list.map((p, i) => {
+        const name = escapeHtml(p.name || "Untitled");
+        const titleHtml = p.link
+          ? '<a href="' + escapeHtml(p.link) + '" target="_blank" rel="noopener">' + name + '</a>'
+          : name;
+        const tags = (p.tech || "").split(",").map(t => t.trim()).filter(Boolean)
+          .map(t => '<span class="tag">' + escapeHtml(t) + '</span>').join("");
+        const linkRow = p.link
+          ? '<div class="link-row"><a href="' + escapeHtml(p.link) + '" target="_blank" rel="noopener">View project ↗</a></div>'
+          : '';
+        return '<div class="cert-card">' +
+          '<h3>' + titleHtml + '</h3>' +
+          (p.date ? '<div class="date">' + escapeHtml(p.date) + '</div>' : '') +
+          (p.description ? '<p class="desc">' + escapeHtml(p.description).replace(/\n/g, "<br>") + '</p>' : '') +
+          (tags ? '<div class="tags">' + tags + '</div>' : '') +
+          linkRow +
+          '<div class="card-actions">' +
+            '<button class="btn small" onclick="editProj(' + i + ')">Edit</button>' +
+            '<button class="btn small danger" onclick="deleteProj(' + i + ')">Delete</button>' +
+          '</div>' +
+        '</div>';
+      }).join("");
+    }
+
     // ---- tabs ----
     function switchTab(name) {
       document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === name));
       document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
       document.getElementById("panel-" + name).classList.add("active");
+      if (name === "projects") renderProjects();
+      if (name === "certifications") renderCerts();
     }
     function switchCat(cat) {
       currentCat = cat;
@@ -618,12 +704,15 @@
       document.body.classList.add("editing");
       document.getElementById("edit-btn").textContent = "✓ Done";
       renderCerts();
+      renderProjects();
     }
     function exitEdit() {
       document.body.classList.remove("editing");
       document.getElementById("edit-btn").textContent = "✎ Edit";
       closeCertForm();
+      closeProjForm();
       renderCerts();
+      renderProjects();
     }
 
     // ---- add / edit / delete cert ----
@@ -669,6 +758,57 @@
       data.certifications[currentCat].splice(i, 1);
       saveLocal();
       renderCerts();
+    }
+
+    // ---- add / edit / delete project ----
+    function openProjForm() {
+      document.getElementById("proj-index").value = "-1";
+      document.getElementById("p-name").value = "";
+      document.getElementById("p-link").value = "";
+      document.getElementById("p-date").value = "";
+      document.getElementById("p-tech").value = "";
+      document.getElementById("p-desc").value = "";
+      document.getElementById("proj-msg").textContent = "";
+      document.getElementById("proj-form").classList.add("open");
+      document.getElementById("p-name").focus();
+    }
+    function closeProjForm() { document.getElementById("proj-form").classList.remove("open"); }
+
+    function editProj(i) {
+      const p = data.projects[i];
+      document.getElementById("proj-index").value = String(i);
+      document.getElementById("p-name").value = p.name || "";
+      document.getElementById("p-link").value = p.link || "";
+      document.getElementById("p-date").value = p.date || "";
+      document.getElementById("p-tech").value = p.tech || "";
+      document.getElementById("p-desc").value = p.description || "";
+      document.getElementById("proj-msg").textContent = "";
+      document.getElementById("proj-form").classList.add("open");
+      document.getElementById("proj-form").scrollIntoView({ behavior: "smooth", block: "center" });
+      document.getElementById("p-name").focus();
+    }
+
+    function saveProj() {
+      const name = document.getElementById("p-name").value.trim();
+      const link = document.getElementById("p-link").value.trim();
+      const date = document.getElementById("p-date").value.trim();
+      const tech = document.getElementById("p-tech").value.trim();
+      const description = document.getElementById("p-desc").value.trim();
+      if (!name) { document.getElementById("proj-msg").textContent = "Please enter a name."; return; }
+      const idx = parseInt(document.getElementById("proj-index").value, 10);
+      const entry = { name, link, date, tech, description };
+      if (idx >= 0) data.projects[idx] = entry;
+      else data.projects.push(entry);
+      saveLocal();
+      closeProjForm();
+      renderProjects();
+    }
+
+    function deleteProj(i) {
+      if (!confirm("Delete this project?")) return;
+      data.projects.splice(i, 1);
+      saveLocal();
+      renderProjects();
     }
 
     // ---- export / import ----
@@ -745,6 +885,7 @@
       document.getElementById("year").textContent = new Date().getFullYear();
       await loadData();
       renderCerts();
+      renderProjects();
     })();
   </script>
 </body>
