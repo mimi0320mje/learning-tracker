@@ -15,11 +15,39 @@
   },
   "projects": [
     {
-      "name": "Sip — Water Tracker PWA",
+      "name": "Mimi's UI Studio",
+      "link": "https://mimi0320mje.github.io/mimi-ui-studio/",
+      "date": "June 2026",
+      "tech": "HTML, CSS, JavaScript",
+      "description": "A personal design-style library. Browse 8 page layouts and 8 button styles, customize the color, font and shape, then copy a ready-made prompt or the matching CSS code."
+    },
+    {
+      "name": "Sip — Water & Liquid Tracker",
       "link": "https://mimi0320mje.github.io/water-tracker/",
-      "date": "2026",
+      "date": "June 2026",
       "tech": "HTML, CSS, JavaScript, PWA",
-      "description": "An installable web app to track daily water intake, with on-device storage and offline support."
+      "description": "An installable web app (PWA) to track daily liquid intake against a goal, with calorie estimates, points and rewards. Saves on your device; add it to your home screen to use like a phone app."
+    },
+    {
+      "name": "Sleep App",
+      "link": "https://mimi0320mje.github.io/sleep-app/",
+      "date": "June 2026",
+      "tech": "HTML, CSS, JavaScript",
+      "description": "A calming, mobile-friendly web app for ambient sounds (ocean, forest, snow), meditation music links, automatic night theming and a daily quote. Your settings are saved on your device."
+    },
+    {
+      "name": "Learning & Certification Portfolio",
+      "link": "https://mimi0320mje.github.io/learning-tracker/",
+      "date": "June 2026",
+      "tech": "HTML, CSS, JavaScript, Firebase",
+      "description": "This very site — a dark, galaxy-themed portfolio to showcase projects and certifications, with password-protected editing and real-time updates across all devices, powered by a Firebase cloud backend."
+    },
+    {
+      "name": "Inbox Tidy",
+      "link": "https://github.com/mimi0320mje/inbox-tidy",
+      "date": "June 2026",
+      "tech": "Python, Gmail API, Claude AI",
+      "description": "An AI assistant that keeps your Gmail tidy: it reads new mail, sorts it into labels, moves adverts to a holding folder and only deletes them after a safety delay. Starred emails are never touched."
     }
   ]
 }
