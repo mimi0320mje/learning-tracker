@@ -1,0 +1,16 @@
+{
+  "certifications": {
+    "AI": [
+      {
+        "name": "DeepLearning.AI — Machine Learning Specialization",
+        "link": "https://www.coursera.org/specializations/machine-learning-introduction",
+        "date": "2026-03-15"
+      },
+      {
+        "name": "Google — Generative AI Fundamentals",
+        "link": "https://www.cloudskillsboost.google/",
+        "date": "2026-05-02"
+      }
+    ]
+  }
+}

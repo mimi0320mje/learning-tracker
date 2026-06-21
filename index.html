@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mia Chen — Learning Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --text: #f2f3f7;
+      --muted: #8b90a0;
+      --accent: #7c9cff;
+      --accent-soft: rgba(124, 156, 255, 0.14);
+      --border: rgba(255, 255, 255, 0.08);
+      --danger: #ff7c8a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ---------- galaxy background ---------- */
+    .galaxy {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(124, 156, 255, 0.10), transparent 45%),
+        radial-gradient(circle at 80% 30%, rgba(168, 124, 255, 0.10), transparent 45%),
+        radial-gradient(circle at 50% 80%, rgba(94, 124, 220, 0.09), transparent 50%),
+        var(--bg);
+    }
+    .stars, .stars2, .stars3 {
+      position: fixed;
+      inset: -200px;
+      z-index: -1;
+      background-repeat: repeat;
+      pointer-events: none;
+    }
+    /* three star layers built from radial-gradient dots, drifting slowly */
+    .stars {
+      background-image:
+        radial-gradient(1px 1px at 20px 30px, #ffffff, transparent),
+        radial-gradient(1px 1px at 90px 80px, #cdd6ff, transparent),
+        radial-gradient(1px 1px at 160px 120px, #ffffff, transparent),
+        radial-gradient(1px 1px at 230px 50px, #b9c4ff, transparent),
+        radial-gradient(1px 1px at 300px 160px, #ffffff, transparent);
+      background-size: 350px 220px;
+      opacity: 0.5;
+      animation: drift 140s linear infinite;
+    }
+    .stars2 {
+      background-image:
+        radial-gradient(1.4px 1.4px at 40px 60px, #ffffff, transparent),
+        radial-gradient(1.4px 1.4px at 130px 10px, #a8b8ff, transparent),
+        radial-gradient(1.4px 1.4px at 210px 140px, #ffffff, transparent),
+        radial-gradient(1.4px 1.4px at 320px 90px, #d8dcff, transparent);
+      background-size: 420px 300px;
+      opacity: 0.35;
+      animation: drift 90s linear infinite reverse;
+    }
+    .stars3 {
+      background-image:
+        radial-gradient(2px 2px at 80px 120px, #ffffff, transparent),
+        radial-gradient(2px 2px at 260px 40px, #c2ccff, transparent),
+        radial-gradient(2px 2px at 360px 200px, #ffffff, transparent);
+      background-size: 520px 360px;
+      opacity: 0.28;
+      animation: drift 200s linear infinite, twinkle 6s ease-in-out infinite alternate;
+    }
+    @keyframes drift {
+      from { transform: translate(0, 0); }
+      to   { transform: translate(-350px, -220px); }
+    }
+    @keyframes twinkle {
+      from { opacity: 0.18; }
+      to   { opacity: 0.40; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .stars, .stars2, .stars3 { animation: none; }
+    }
+
+    /* ---------- layout ---------- */
+    .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+
+    .topbar {
+      display: flex;
+      justify-content: flex-end;
+      padding: 20px 24px 0;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    header.hero {
+      text-align: center;
+      padding: 30px 24px 36px;
+    }
+    header.hero h1 {
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    header.hero .tagline {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 400;
+      letter-spacing: 0.3px;
+    }
+
+    /* ---------- buttons ---------- */
+    .btn {
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 9px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.18s, border-color 0.18s, transform 0.18s, color 0.18s;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+    .btn.primary {
+      background: var(--accent);
+      color: #0f1117;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+    .btn.primary:hover { color: #0f1117; opacity: 0.9; }
+    .btn.ghost { background: transparent; }
+    .btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+    .btn.small { padding: 6px 12px; font-size: 12px; }
+
+    /* ---------- tabs ---------- */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin: 8px auto 28px;
+      flex-wrap: wrap;
+    }
+    .tab {
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 9px 22px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .subtabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .subtab {
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 6px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .subtab.active { background: var(--surface); color: var(--text); border-color: var(--accent); }
+
+    .panel { display: none; animation: fade 0.3s ease; }
+    .panel.active { display: block; }
+    @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .section-head h2 { font-size: 22px; font-weight: 600; }
+    .section-head p { color: var(--muted); font-size: 14px; }
+
+    /* ---------- cards ---------- */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 18px;
+    }
+    .cert-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 20px 18px;
+      transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
+    }
+    .cert-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    .cert-card h3 { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+    .cert-card h3 a { color: var(--text); text-decoration: none; }
+    .cert-card h3 a:hover { color: var(--accent); }
+    .cert-card .date { color: var(--muted); font-size: 13px; }
+    .cert-card .link-row { margin-top: 12px; }
+    .cert-card .link-row a {
+      color: var(--accent);
+      font-size: 13px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .cert-card .link-row a:hover { text-decoration: underline; }
+    .card-actions { display: flex; gap: 8px; margin-top: 14px; }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 50px 20px;
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      font-size: 15px;
+    }
+
+    .placeholder {
+      text-align: center;
+      color: var(--muted);
+      padding: 70px 20px;
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+    }
+    .placeholder h2 { color: var(--text); font-size: 20px; margin-bottom: 8px; font-weight: 600; }
+
+    /* ---------- edit toolbar ---------- */
+    .edit-toolbar {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 22px;
+    }
+    body.editing .edit-toolbar { display: flex; }
+    .edit-toolbar .badge {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+    .edit-toolbar .spacer { flex: 1; }
+    .editor-only { display: none; }
+    body.editing .editor-only { display: inline-flex; }
+    body.editing .card-actions { display: flex; }
+    .card-actions { display: none; }
+
+    /* ---------- modals & forms ---------- */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 9, 14, 0.72);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .overlay.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .modal h3 { font-size: 19px; font-weight: 600; margin-bottom: 6px; }
+    .modal .hint { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    .field input {
+      width: 100%;
+      font-family: inherit;
+      font-size: 14px;
+      padding: 10px 12px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: #12151d;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.18s;
+    }
+    .field input:focus { border-color: var(--accent); }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .msg { font-size: 13px; margin-top: 4px; min-height: 18px; }
+    .msg.error { color: var(--danger); }
+    .msg.ok { color: var(--accent); }
+
+    /* inline add/edit form */
+    .cert-form {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 18px;
+      display: none;
+    }
+    .cert-form.open { display: block; }
+    .cert-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 560px) { .cert-form .row { grid-template-columns: 1fr; } }
+
+    /* ---------- footer ---------- */
+    footer {
+      text-align: center;
+      padding: 50px 24px 40px;
+      margin-top: 50px;
+      border-top: 1px solid var(--border);
+    }
+    footer .copy { color: var(--muted); font-size: 13px; margin-top: 16px; }
+
+    @media (max-width: 600px) {
+      header.hero h1 { font-size: 30px; }
+      .tab { padding: 8px 16px; font-size: 13px; }
+      .wrap { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="galaxy"></div>
+  <div class="stars"></div>
+  <div class="stars2"></div>
+  <div class="stars3"></div>
+
+  <div class="topbar">
+    <button class="btn" id="edit-btn" onclick="onEditButton()">✎ Edit</button>
+  </div>
+
+  <header class="hero">
+    <h1>Mia Chen</h1>
+    <p class="tagline">Learning &amp; Certification Portfolio</p>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="certifications" onclick="switchTab('certifications')">Certifications</button>
+    <button class="tab" data-tab="projects" onclick="switchTab('projects')">Projects</button>
+  </nav>
+
+  <main class="wrap">
+    <!-- edit toolbar (only visible in edit mode) -->
+    <div class="edit-toolbar">
+      <span class="badge">✎ Edit mode</span>
+      <span class="spacer"></span>
+      <button class="btn small" onclick="exportData()">⬇ Export data.json</button>
+      <button class="btn small" onclick="document.getElementById('import-file').click()">⬆ Import</button>
+      <input type="file" id="import-file" accept="application/json" style="display:none" onchange="importData(event)" />
+      <button class="btn small" onclick="openChangePw()">🔑 Change password</button>
+      <button class="btn small ghost" onclick="exitEdit()">Exit edit</button>
+    </div>
+
+    <!-- CERTIFICATIONS -->
+    <section class="panel active" id="panel-certifications">
+      <div class="subtabs" id="cert-subtabs">
+        <button class="subtab active" data-cat="AI" onclick="switchCat('AI')">AI</button>
+      </div>
+
+      <div class="section-head">
+        <div>
+          <h2 id="cat-title">AI Certifications</h2>
+          <p>Courses & credentials I've completed.</p>
+        </div>
+        <button class="btn primary small editor-only" onclick="openCertForm()">+ Add certification</button>
+      </div>
+
+      <!-- inline add/edit form -->
+      <div class="cert-form" id="cert-form">
+        <input type="hidden" id="cert-index" value="-1" />
+        <div class="field">
+          <label for="f-name">Certification name</label>
+          <input type="text" id="f-name" placeholder="e.g. DeepLearning.AI — Machine Learning Specialization" />
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="f-link">Link (URL)</label>
+            <input type="url" id="f-link" placeholder="https://..." />
+          </div>
+          <div class="field">
+            <label for="f-date">Completion date</label>
+            <input type="date" id="f-date" />
+          </div>
+        </div>
+        <div class="msg error" id="form-msg"></div>
+        <div class="modal-actions">
+          <button class="btn ghost small" onclick="closeCertForm()">Cancel</button>
+          <button class="btn primary small" onclick="saveCert()">Save</button>
+        </div>
+      </div>
+
+      <div class="grid" id="cert-grid"></div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section class="panel" id="panel-projects">
+      <div class="placeholder">
+        <h2>Projects — coming soon</h2>
+        <p>This space is reserved for Phase 2: project write-ups and case studies.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <button class="btn primary" onclick="contactMe()">✉ Contact me</button>
+    <div class="copy">© <span id="year"></span> Mia Chen · Learning Portfolio</div>
+  </footer>
+
+  <!-- password modal -->
+  <div class="overlay" id="pw-overlay">
+    <div class="modal">
+      <h3>Enter password to edit</h3>
+      <p class="hint">Light protection — keeps casual visitors from editing.</p>
+      <div class="field">
+        <label for="pw-input">Password</label>
+        <input type="password" id="pw-input" autocomplete="off" onkeydown="if(event.key==='Enter') submitPw()" />
+      </div>
+      <div class="msg error" id="pw-msg"></div>
+      <div class="modal-actions">
+        <button class="btn ghost" onclick="closePw()">Cancel</button>
+        <button class="btn primary" onclick="submitPw()">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- change password modal -->
+  <div class="overlay" id="cpw-overlay">
+    <div class="modal">
+      <h3>Change password</h3>
+      <p class="hint">Tip: <strong>Mia666%</strong> always works as a recovery key, even after you change this.</p>
+      <div class="field">
+        <label for="cpw-current">Current password</label>
+        <input type="password" id="cpw-current" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="cpw-new">New password</label>
+        <input type="password" id="cpw-new" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="cpw-confirm">Confirm new password</label>
+        <input type="password" id="cpw-confirm" autocomplete="off" />
+      </div>
+      <div class="msg" id="cpw-msg"></div>
+      <div class="modal-actions">
+        <button class="btn ghost" onclick="closeChangePw()">Cancel</button>
+        <button class="btn primary" onclick="submitChangePw()">Update password</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---- config ----
+    // Permanent master/recovery key = SHA-256("Mia666%"). Always works.
+    const MASTER_HASH = "2879c73d50502355849bf66cb4c00b3925c464fc6d3c5b2403f9c4fa6b951e01";
+    const LS_DATA = "lt_data_v1";
+    const LS_PW = "lt_custompw_v1";
+    const CONTACT_USER = "miachen1155665"; // email assembled at runtime, never in markup
+    const CONTACT_DOMAIN = "gmail.com";
+
+    let data = { certifications: { AI: [] } };
+    let currentCat = "AI";
+
+    // ---- hashing ----
+    async function sha256(text) {
+      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    // ---- data load/save ----
+    async function loadData() {
+      const local = localStorage.getItem(LS_DATA);
+      if (local) {
+        try { data = JSON.parse(local); } catch (e) { /* fall through */ }
+      } else {
+        try {
+          const res = await fetch("data.json", { cache: "no-store" });
+          if (res.ok) {
+            const json = await res.json();
+            if (json.certifications) data = json;
+            // adopt published custom password if present and none saved locally
+            if (json.passwordHash && !localStorage.getItem(LS_PW)) {
+              localStorage.setItem(LS_PW, json.passwordHash);
+            }
+          }
+        } catch (e) { /* keep default */ }
+      }
+      if (!data.certifications) data.certifications = { AI: [] };
+      if (!data.certifications.AI) data.certifications.AI = [];
+    }
+
+    function saveLocal() {
+      const out = JSON.parse(JSON.stringify(data));
+      const pw = localStorage.getItem(LS_PW);
+      if (pw) out.passwordHash = pw;
+      localStorage.setItem(LS_DATA, JSON.stringify(out));
+    }
+
+    // ---- rendering ----
+    function fmtDate(iso) {
+      if (!iso) return "";
+      const d = new Date(iso + "T00:00:00");
+      if (isNaN(d)) return iso;
+      return d.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+    }
+
+    function renderCerts() {
+      const list = data.certifications[currentCat] || [];
+      const grid = document.getElementById("cert-grid");
+      document.getElementById("cat-title").textContent = currentCat + " Certifications";
+      if (list.length === 0) {
+        grid.innerHTML = '<div class="empty">No certifications yet. ' +
+          (document.body.classList.contains("editing") ? 'Click “+ Add certification” to add one.' : 'Check back soon!') +
+          '</div>';
+        return;
+      }
+      grid.innerHTML = list.map((c, i) => {
+        const name = escapeHtml(c.name || "Untitled");
+        const titleHtml = c.link
+          ? '<a href="' + escapeHtml(c.link) + '" target="_blank" rel="noopener">' + name + '</a>'
+          : name;
+        const linkRow = c.link
+          ? '<div class="link-row"><a href="' + escapeHtml(c.link) + '" target="_blank" rel="noopener">View credential ↗</a></div>'
+          : '';
+        return '<div class="cert-card">' +
+          '<h3>' + titleHtml + '</h3>' +
+          (c.date ? '<div class="date">Completed ' + escapeHtml(fmtDate(c.date)) + '</div>' : '') +
+          linkRow +
+          '<div class="card-actions">' +
+            '<button class="btn small" onclick="editCert(' + i + ')">Edit</button>' +
+            '<button class="btn small danger" onclick="deleteCert(' + i + ')">Delete</button>' +
+          '</div>' +
+        '</div>';
+      }).join("");
+    }
+
+    // ---- tabs ----
+    function switchTab(name) {
+      document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === name));
+      document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+      document.getElementById("panel-" + name).classList.add("active");
+    }
+    function switchCat(cat) {
+      currentCat = cat;
+      document.querySelectorAll(".subtab").forEach(s => s.classList.toggle("active", s.dataset.cat === cat));
+      renderCerts();
+    }
+
+    // ---- edit mode ----
+    function onEditButton() {
+      if (document.body.classList.contains("editing")) { exitEdit(); return; }
+      openPw();
+    }
+    function openPw() {
+      document.getElementById("pw-msg").textContent = "";
+      document.getElementById("pw-input").value = "";
+      document.getElementById("pw-overlay").classList.add("open");
+      setTimeout(() => document.getElementById("pw-input").focus(), 50);
+    }
+    function closePw() { document.getElementById("pw-overlay").classList.remove("open"); }
+
+    async function submitPw() {
+      const val = document.getElementById("pw-input").value;
+      const hash = await sha256(val);
+      const custom = localStorage.getItem(LS_PW);
+      if (hash === MASTER_HASH || (custom && hash === custom)) {
+        closePw();
+        enterEdit();
+      } else {
+        document.getElementById("pw-msg").textContent = "Incorrect password. Try again.";
+      }
+    }
+
+    function enterEdit() {
+      document.body.classList.add("editing");
+      document.getElementById("edit-btn").textContent = "✓ Done";
+      renderCerts();
+    }
+    function exitEdit() {
+      document.body.classList.remove("editing");
+      document.getElementById("edit-btn").textContent = "✎ Edit";
+      closeCertForm();
+      renderCerts();
+    }
+
+    // ---- add / edit / delete cert ----
+    function openCertForm() {
+      document.getElementById("cert-index").value = "-1";
+      document.getElementById("f-name").value = "";
+      document.getElementById("f-link").value = "";
+      document.getElementById("f-date").value = "";
+      document.getElementById("form-msg").textContent = "";
+      document.getElementById("cert-form").classList.add("open");
+      document.getElementById("f-name").focus();
+    }
+    function closeCertForm() { document.getElementById("cert-form").classList.remove("open"); }
+
+    function editCert(i) {
+      const c = data.certifications[currentCat][i];
+      document.getElementById("cert-index").value = String(i);
+      document.getElementById("f-name").value = c.name || "";
+      document.getElementById("f-link").value = c.link || "";
+      document.getElementById("f-date").value = c.date || "";
+      document.getElementById("form-msg").textContent = "";
+      document.getElementById("cert-form").classList.add("open");
+      document.getElementById("f-name").focus();
+      document.getElementById("cert-form").scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    function saveCert() {
+      const name = document.getElementById("f-name").value.trim();
+      const link = document.getElementById("f-link").value.trim();
+      const date = document.getElementById("f-date").value;
+      if (!name) { document.getElementById("form-msg").textContent = "Please enter a name."; return; }
+      const idx = parseInt(document.getElementById("cert-index").value, 10);
+      const entry = { name, link, date };
+      if (idx >= 0) data.certifications[currentCat][idx] = entry;
+      else data.certifications[currentCat].push(entry);
+      saveLocal();
+      closeCertForm();
+      renderCerts();
+    }
+
+    function deleteCert(i) {
+      if (!confirm("Delete this certification?")) return;
+      data.certifications[currentCat].splice(i, 1);
+      saveLocal();
+      renderCerts();
+    }
+
+    // ---- export / import ----
+    function exportData() {
+      const out = JSON.parse(JSON.stringify(data));
+      const pw = localStorage.getItem(LS_PW);
+      if (pw) out.passwordHash = pw;
+      const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "data.json";
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const json = JSON.parse(e.target.result);
+          if (!json.certifications) throw new Error("Missing certifications");
+          data = json;
+          if (json.passwordHash) localStorage.setItem(LS_PW, json.passwordHash);
+          if (!data.certifications.AI) data.certifications.AI = [];
+          saveLocal();
+          renderCerts();
+          alert("Imported successfully.");
+        } catch (err) {
+          alert("Could not import: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
+    // ---- change password ----
+    function openChangePw() {
+      document.getElementById("cpw-current").value = "";
+      document.getElementById("cpw-new").value = "";
+      document.getElementById("cpw-confirm").value = "";
+      const m = document.getElementById("cpw-msg"); m.textContent = ""; m.className = "msg";
+      document.getElementById("cpw-overlay").classList.add("open");
+    }
+    function closeChangePw() { document.getElementById("cpw-overlay").classList.remove("open"); }
+
+    async function submitChangePw() {
+      const cur = document.getElementById("cpw-current").value;
+      const nw = document.getElementById("cpw-new").value;
+      const cf = document.getElementById("cpw-confirm").value;
+      const m = document.getElementById("cpw-msg");
+      const curHash = await sha256(cur);
+      const custom = localStorage.getItem(LS_PW);
+      if (curHash !== MASTER_HASH && !(custom && curHash === custom)) {
+        m.className = "msg error"; m.textContent = "Current password is incorrect."; return;
+      }
+      if (nw.length < 4) { m.className = "msg error"; m.textContent = "New password must be at least 4 characters."; return; }
+      if (nw !== cf) { m.className = "msg error"; m.textContent = "New passwords don't match."; return; }
+      const newHash = await sha256(nw);
+      localStorage.setItem(LS_PW, newHash);
+      saveLocal();
+      m.className = "msg ok"; m.textContent = "Password updated. Don't forget to Export & publish data.json!";
+      setTimeout(closeChangePw, 1800);
+    }
+
+    // ---- contact (email never in markup) ----
+    function contactMe() {
+      window.location.href = "mailto:" + CONTACT_USER + "@" + CONTACT_DOMAIN +
+        "?subject=" + encodeURIComponent("Hello from your portfolio");
+    }
+
+    // ---- init ----
+    (async function init() {
+      document.getElementById("year").textContent = new Date().getFullYear();
+      await loadData();
+      renderCerts();
+    })();
+  </script>
+</body>
+</html>
