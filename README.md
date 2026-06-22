@@ -28,7 +28,7 @@ The **⬇ Backup** button downloads a copy of your data as a safety net (optiona
 
 ### Password & security
 
-- Default password: **Mia666%**
+- Default password: 
 - Change it anytime in Edit mode (**🔑 Change password**).
 - **Anyone can view** the portfolio, but **only you can edit** it (enforced by Firebase Auth + Firestore security rules — your email is the only account allowed to write).
 - **Forgot your password?** Reset it from the Firebase console (Authentication → Users) at https://console.firebase.google.com.
