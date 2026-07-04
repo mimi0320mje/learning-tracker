@@ -2,14 +2,14 @@
   "certifications": {
     "AI": [
       {
-        "name": "DeepLearning.AI — Machine Learning Specialization",
-        "link": "https://www.coursera.org/specializations/machine-learning-introduction",
-        "date": "2026-03-15"
+        "name": "IBM Skillbuild-Introduction to Artificial Intelligence",
+        "link": "https://students.yourlearning.ibm.com/certificate/share/3a2f8a58d8ewogICJvYmplY3RUeXBlIiA6ICJBQ1RJVklUWSIsCiAgImxlYXJuZXJDTlVNIiA6ICI0MTI5MjgzUkVHIiwKICAib2JqZWN0SWQiIDogIkFMTS1DT1VSU0VfNDA1ODk5MyIKfQ8f5a13c340-10",
+        "date": "2026-06-10"
       },
       {
-        "name": "Google — Generative AI Fundamentals",
-        "link": "https://www.cloudskillsboost.google/",
-        "date": "2026-05-02"
+        "name": "Anthropic — Claude 101",
+        "link": "https://verify.skilljar.com/c/pz3tyikxp7rq",
+        "date": "2026-07-04"
       }
     ]
   },
@@ -19,7 +19,7 @@
       "link": "https://mimi0320mje.github.io/mimi-ui-studio/",
       "date": "June 2026",
       "tech": "HTML, CSS, JavaScript",
-      "description": "A personal design-style library with three sections: 8 page templates, 8 button styles, and 6 animated mouse-reactive backgrounds. Tweak the colors, font, shape and motion with a live preview, then copy a ready-made prompt or the matching code."
+      "description": "A personal design-style library. Browse 8 page layouts and 8 button styles, customize the color, font and shape, then copy a ready-made prompt or the matching CSS code."
     },
     {
       "name": "Sip — Water & Liquid Tracker",
