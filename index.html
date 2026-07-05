@@ -356,6 +356,24 @@
     }
     footer .copy { color: var(--muted); font-size: 13px; margin-top: 16px; }
 
+    /* Overview: about + timeline */
+    .about h2 { font-size: 24px; font-weight: 700; }
+    .about-bio { color: var(--text); font-size: 15px; line-height: 1.7; margin-top: 10px; max-width: 720px; }
+    .about-loc { color: var(--muted); font-size: 13px; margin-top: 8px; }
+    .about-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .about-link { font-size: 13px; color: var(--accent); background: var(--accent-soft); padding: 5px 12px; border-radius: 999px; text-decoration: none; }
+    .about-link:hover { text-decoration: underline; }
+    .timeline { position: relative; margin-top: 4px; }
+    .tl-item { position: relative; padding-left: 24px; }
+    .tl-item::before { content: ""; position: absolute; left: 5px; top: 8px; bottom: -6px; width: 2px; background: var(--accent-soft); }
+    .tl-item:last-child::before { display: none; }
+    .tl-dot { position: absolute; left: 0; top: 7px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+    .tl-body { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 16px; }
+    .tl-body h3 { font-size: 16px; font-weight: 600; margin-top: 2px; }
+    .tl-sub { color: var(--accent); font-size: 13px; margin-top: 2px; }
+    .tl-list { margin: 10px 0 0; padding-left: 18px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .tl-list li { margin-bottom: 5px; }
+
     @media (max-width: 600px) {
       header.hero h1 { font-size: 30px; }
       .tab { padding: 8px 16px; font-size: 13px; }
@@ -379,8 +397,8 @@
   </header>
 
   <nav class="tabs">
-    <button class="tab" data-tab="overview" onclick="switchTab('overview')">Overview</button>
-    <button class="tab active" data-tab="projects" onclick="switchTab('projects')">Projects</button>
+    <button class="tab active" data-tab="overview" onclick="switchTab('overview')">Overview</button>
+    <button class="tab" data-tab="projects" onclick="switchTab('projects')">Projects</button>
     <button class="tab" data-tab="certifications" onclick="switchTab('certifications')">Certifications</button>
   </nav>
 
@@ -437,7 +455,7 @@
     </section>
 
     <!-- PROJECTS -->
-    <section class="panel active" id="panel-projects">
+    <section class="panel" id="panel-projects">
       <div class="section-head">
         <div>
           <h2>Projects</h2>
@@ -481,12 +499,128 @@
       <div class="grid" id="proj-grid"></div>
     </section>
 
-    <!-- OVERVIEW (Phase 2 placeholder) -->
-    <section class="panel" id="panel-overview">
-      <div class="placeholder">
-        <h2>Overview — coming soon</h2>
-        <p>Phase 2: a little about me, plus my work &amp; study experience.</p>
+    <!-- OVERVIEW -->
+    <section class="panel active" id="panel-overview">
+      <!-- About me -->
+      <div class="about">
+        <h2 id="ov-headline"></h2>
+        <p class="about-bio" id="ov-bio"></p>
+        <div class="about-loc" id="ov-location"></div>
+        <div class="about-links" id="ov-links"></div>
+        <div class="editor-only" style="margin-top:14px">
+          <button class="btn small" onclick="openAboutForm()">✎ Edit about</button>
+        </div>
       </div>
+
+      <div class="cert-form" id="about-form">
+        <div class="field">
+          <label for="a-headline">Headline</label>
+          <input type="text" id="a-headline" placeholder="e.g. Certified Salesforce Administrator" />
+        </div>
+        <div class="field">
+          <label for="a-bio">Short bio</label>
+          <textarea id="a-bio" rows="4" placeholder="A few sentences about you."></textarea>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="a-location">Location (optional)</label>
+            <input type="text" id="a-location" placeholder="e.g. London, UK" />
+          </div>
+          <div class="field">
+            <label for="a-links">Links — label|url, comma separated</label>
+            <input type="text" id="a-links" placeholder="LinkedIn|https://…, GitHub|https://…" />
+          </div>
+        </div>
+        <div class="msg error" id="about-msg"></div>
+        <div class="modal-actions">
+          <button class="btn ghost small" onclick="closeAboutForm()">Cancel</button>
+          <button class="btn primary small" onclick="saveAbout()">Save</button>
+        </div>
+      </div>
+
+      <!-- Work experience -->
+      <div class="section-head" style="margin-top:28px">
+        <div>
+          <h2>Work experience</h2>
+          <p>Where I've worked and what I did.</p>
+        </div>
+        <button class="btn primary small editor-only" onclick="openWorkForm()">+ Add role</button>
+      </div>
+
+      <div class="cert-form" id="work-form">
+        <input type="hidden" id="w-index" value="-1" />
+        <div class="field">
+          <label for="w-role">Role / title</label>
+          <input type="text" id="w-role" placeholder="e.g. Salesforce Administrator" />
+        </div>
+        <div class="field">
+          <label for="w-company">Company (optional)</label>
+          <input type="text" id="w-company" />
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="w-start">Start</label>
+            <input type="text" id="w-start" placeholder="e.g. Jul 2022" />
+          </div>
+          <div class="field">
+            <label for="w-end">End</label>
+            <input type="text" id="w-end" placeholder="e.g. Present" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="w-desc">Description — one point per line</label>
+          <textarea id="w-desc" rows="4"></textarea>
+        </div>
+        <div class="msg error" id="work-msg"></div>
+        <div class="modal-actions">
+          <button class="btn ghost small" onclick="closeWorkForm()">Cancel</button>
+          <button class="btn primary small" onclick="saveWork()">Save</button>
+        </div>
+      </div>
+
+      <div class="timeline" id="work-timeline"></div>
+
+      <!-- Education -->
+      <div class="section-head" style="margin-top:28px">
+        <div>
+          <h2>Education</h2>
+          <p>My studies.</p>
+        </div>
+        <button class="btn primary small editor-only" onclick="openEduForm()">+ Add education</button>
+      </div>
+
+      <div class="cert-form" id="edu-form">
+        <input type="hidden" id="e-index" value="-1" />
+        <div class="field">
+          <label for="e-school">School / university</label>
+          <input type="text" id="e-school" placeholder="e.g. University of Warwick" />
+        </div>
+        <div class="field">
+          <label for="e-program">Program / degree</label>
+          <input type="text" id="e-program" placeholder="e.g. BSc Chemistry" />
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="e-start">Start (optional)</label>
+            <input type="text" id="e-start" />
+          </div>
+          <div class="field">
+            <label for="e-end">End</label>
+            <input type="text" id="e-end" placeholder="e.g. 2022" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="e-desc">Description (optional)</label>
+          <textarea id="e-desc" rows="2"></textarea>
+        </div>
+        <div class="msg error" id="edu-msg"></div>
+        <div class="modal-actions">
+          <button class="btn ghost small" onclick="closeEduForm()">Cancel</button>
+          <button class="btn primary small" onclick="saveEdu()">Save</button>
+        </div>
+      </div>
+
+      <div class="timeline" id="edu-timeline"></div>
     </section>
   </main>
 
@@ -561,7 +695,39 @@
     const CONTACT_USER = "miachen1155665"; // email assembled at runtime, never in markup
     const CONTACT_DOMAIN = "gmail.com";
 
-    let data = { certifications: { AI: [] }, projects: [] };
+    // Default "About me" content — shown until an edited version is saved to the cloud.
+    const DEFAULT_OVERVIEW = {
+      headline: "Certified Salesforce Administrator",
+      bio: "Certified Salesforce Administrator with a background in customer service and a BSc in Chemistry from the University of Warwick. I work across Salesforce Service Cloud and Marketing Cloud — taking projects from requirements gathering through configuration, UAT and deployment — with a focus on reliable, well-documented administration.",
+      location: "",
+      links: [{ label: "LinkedIn", url: "" }],
+      work: [
+        {
+          role: "Certified Salesforce Administrator",
+          company: "",
+          start: "2023",
+          end: "Present",
+          description:
+            "Maintain day-to-day Salesforce administration — user management, validation rules and field-level security — across Service Cloud (SFSC) and Marketing Cloud (SFMC), with working knowledge of Jira.\n" +
+            "Partner with users and stakeholders to run projects independently, from requirements gathering through to writing User Requirement Specifications (URS).\n" +
+            "Deliver end-to-end Service Cloud configuration, including building Flows, then follow through with UAT testing and deployment.\n" +
+            "Build data extensions and customer journeys in Marketing Cloud and sync automated processes back into Service Cloud."
+        },
+        {
+          role: "Customer Service Executive",
+          company: "",
+          start: "Jul 2022",
+          end: "2023",
+          description:
+            "Delivered front-line customer service using Salesforce Service Cloud (SFSC) as a daily agent, building strong hands-on knowledge of the agent experience and case management."
+        }
+      ],
+      education: [
+        { school: "University of Warwick", program: "BSc Chemistry", start: "", end: "2022", description: "" }
+      ]
+    };
+
+    let data = { certifications: { AI: [] }, projects: [], overview: null };
     let currentCat = "AI";
     let cloudReady = false; // true once the Firestore document exists
 
@@ -569,6 +735,10 @@
       if (!data.certifications) data.certifications = { AI: [] };
       if (!data.certifications.AI) data.certifications.AI = [];
       if (!Array.isArray(data.projects)) data.projects = [];
+      if (!data.overview) data.overview = JSON.parse(JSON.stringify(DEFAULT_OVERVIEW));
+      if (!Array.isArray(data.overview.links)) data.overview.links = [];
+      if (!Array.isArray(data.overview.work)) data.overview.work = [];
+      if (!Array.isArray(data.overview.education)) data.overview.education = [];
     }
 
     // ---- realtime load from the cloud (live across all devices/visitors) ----
@@ -576,11 +746,12 @@
       DOC.onSnapshot(snap => {
         if (snap.exists) {
           const d = snap.data();
-          data = { certifications: d.certifications, projects: d.projects };
+          data = { certifications: d.certifications, projects: d.projects, overview: d.overview };
           cloudReady = true;
           normalizeData();
           renderCerts();
           renderProjects();
+          renderOverview();
         } else {
           // nothing in the cloud yet — show the seed file so the page isn't empty
           loadSeed();
@@ -597,12 +768,13 @@
         const res = await fetch("data.json", { cache: "no-store" });
         if (res.ok) {
           const json = await res.json();
-          if (json.certifications) data = { certifications: json.certifications, projects: json.projects || [] };
+          if (json.certifications) data = { certifications: json.certifications, projects: json.projects || [], overview: json.overview || null };
         }
       } catch (e) { /* keep default */ }
       normalizeData();
       renderCerts();
       renderProjects();
+      renderOverview();
     }
 
     // ---- save to the cloud (requires being signed in) ----
@@ -610,7 +782,7 @@
       const status = document.getElementById("save-status");
       try {
         if (status) status.textContent = "Saving…";
-        await DOC.set({ certifications: data.certifications, projects: data.projects });
+        await DOC.set({ certifications: data.certifications, projects: data.projects, overview: data.overview });
         cloudReady = true;
         if (status) { status.textContent = "Saved ✓ (live everywhere)"; setTimeout(() => { status.textContent = ""; }, 2200); }
       } catch (e) {
@@ -702,6 +874,7 @@
       document.getElementById("panel-" + name).classList.add("active");
       if (name === "projects") renderProjects();
       if (name === "certifications") renderCerts();
+      if (name === "overview") renderOverview();
     }
     function switchCat(cat) {
       currentCat = cat;
@@ -743,15 +916,18 @@
       if (!cloudReady && auth.currentUser) saveCloud();
       renderCerts();
       renderProjects();
+      renderOverview();
     }
     async function exitEdit() {
       document.body.classList.remove("editing");
       document.getElementById("edit-btn").textContent = "✎ Edit";
       closeCertForm();
       closeProjForm();
+      closeAboutForm(); closeWorkForm(); closeEduForm();
       try { await auth.signOut(); } catch (e) { /* ignore */ }
       renderCerts();
       renderProjects();
+      renderOverview();
     }
 
     // ---- add / edit / delete cert ----
@@ -850,9 +1026,164 @@
       renderProjects();
     }
 
+    // ---- overview (about / work / education) ----
+    function ensureOverview() {
+      if (!data.overview) data.overview = JSON.parse(JSON.stringify(DEFAULT_OVERVIEW));
+      if (!Array.isArray(data.overview.links)) data.overview.links = [];
+      if (!Array.isArray(data.overview.work)) data.overview.work = [];
+      if (!Array.isArray(data.overview.education)) data.overview.education = [];
+    }
+
+    function dateRange(s, e) {
+      s = (s || "").trim(); e = (e || "").trim();
+      return (s && e) ? (s + " – " + e) : (s || e || "");
+    }
+    function descHtml(d) {
+      if (!d) return "";
+      const lines = String(d).split("\n").map(x => x.trim()).filter(Boolean);
+      if (lines.length <= 1) return '<p class="desc">' + escapeHtml(d) + '</p>';
+      return '<ul class="tl-list">' + lines.map(l => '<li>' + escapeHtml(l) + '</li>').join("") + '</ul>';
+    }
+    function timelineItem(o) {
+      const range = dateRange(o.start, o.end);
+      const editFn = o.kind === "work" ? "editWork" : "editEdu";
+      const delFn = o.kind === "work" ? "deleteWork" : "deleteEdu";
+      return '<div class="tl-item"><div class="tl-dot"></div><div class="tl-body">' +
+        (range ? '<div class="date">' + escapeHtml(range) + '</div>' : '') +
+        '<h3>' + escapeHtml(o.title || "") + '</h3>' +
+        (o.sub ? '<div class="tl-sub">' + escapeHtml(o.sub) + '</div>' : '') +
+        descHtml(o.desc) +
+        '<div class="card-actions">' +
+          '<button class="btn small" onclick="' + editFn + '(' + o.i + ')">Edit</button>' +
+          '<button class="btn small danger" onclick="' + delFn + '(' + o.i + ')">Delete</button>' +
+        '</div>' +
+      '</div></div>';
+    }
+    function overviewEmpty(kind) {
+      return '<div class="empty">No ' + kind + ' added yet.' +
+        (document.body.classList.contains("editing") ? ' Use the “+ Add” button above.' : '') + '</div>';
+    }
+
+    function renderOverview() {
+      ensureOverview();
+      const o = data.overview;
+      document.getElementById("ov-headline").textContent = o.headline || "";
+      const bio = document.getElementById("ov-bio");
+      bio.innerHTML = o.bio ? escapeHtml(o.bio).replace(/\n/g, "<br>") : "";
+      document.getElementById("ov-location").textContent = o.location || "";
+      document.getElementById("ov-links").innerHTML = (o.links || [])
+        .filter(l => l && l.url)
+        .map(l => '<a class="about-link" href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener">' + escapeHtml(l.label || l.url) + ' ↗</a>')
+        .join("");
+
+      const work = o.work || [];
+      document.getElementById("work-timeline").innerHTML = work.length
+        ? work.map((w, i) => timelineItem({ title: w.role, sub: w.company, start: w.start, end: w.end, desc: w.description, i, kind: "work" })).join("")
+        : overviewEmpty("roles");
+
+      const edu = o.education || [];
+      document.getElementById("edu-timeline").innerHTML = edu.length
+        ? edu.map((e, i) => timelineItem({ title: e.program || e.school, sub: (e.program ? e.school : ""), start: e.start, end: e.end, desc: e.description, i, kind: "edu" })).join("")
+        : overviewEmpty("education");
+    }
+
+    // about
+    function openAboutForm() {
+      ensureOverview();
+      const o = data.overview;
+      document.getElementById("a-headline").value = o.headline || "";
+      document.getElementById("a-bio").value = o.bio || "";
+      document.getElementById("a-location").value = o.location || "";
+      document.getElementById("a-links").value = (o.links || []).filter(l => l).map(l => (l.label || "") + "|" + (l.url || "")).join(", ");
+      document.getElementById("about-msg").textContent = "";
+      document.getElementById("about-form").classList.add("open");
+    }
+    function closeAboutForm() { document.getElementById("about-form").classList.remove("open"); }
+    function saveAbout() {
+      ensureOverview();
+      data.overview.headline = document.getElementById("a-headline").value.trim();
+      data.overview.bio = document.getElementById("a-bio").value.trim();
+      data.overview.location = document.getElementById("a-location").value.trim();
+      data.overview.links = document.getElementById("a-links").value.split(",").map(s => s.trim()).filter(Boolean).map(pair => {
+        const k = pair.indexOf("|");
+        return k < 0 ? { label: pair, url: pair } : { label: pair.slice(0, k).trim(), url: pair.slice(k + 1).trim() };
+      });
+      saveCloud(); closeAboutForm(); renderOverview();
+    }
+
+    // work
+    function setWorkForm(i, w) {
+      document.getElementById("w-index").value = String(i);
+      document.getElementById("w-role").value = w.role || "";
+      document.getElementById("w-company").value = w.company || "";
+      document.getElementById("w-start").value = w.start || "";
+      document.getElementById("w-end").value = w.end || "";
+      document.getElementById("w-desc").value = w.description || "";
+      document.getElementById("work-msg").textContent = "";
+      const f = document.getElementById("work-form"); f.classList.add("open");
+      f.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    function openWorkForm() { setWorkForm(-1, {}); }
+    function editWork(i) { ensureOverview(); setWorkForm(i, data.overview.work[i]); }
+    function closeWorkForm() { document.getElementById("work-form").classList.remove("open"); }
+    function saveWork() {
+      ensureOverview();
+      const role = document.getElementById("w-role").value.trim();
+      if (!role) { document.getElementById("work-msg").textContent = "Please enter a role."; return; }
+      const entry = {
+        role,
+        company: document.getElementById("w-company").value.trim(),
+        start: document.getElementById("w-start").value.trim(),
+        end: document.getElementById("w-end").value.trim(),
+        description: document.getElementById("w-desc").value.trim()
+      };
+      const idx = parseInt(document.getElementById("w-index").value, 10);
+      if (idx >= 0) data.overview.work[idx] = entry; else data.overview.work.push(entry);
+      saveCloud(); closeWorkForm(); renderOverview();
+    }
+    function deleteWork(i) {
+      if (!confirm("Delete this role?")) return;
+      ensureOverview(); data.overview.work.splice(i, 1); saveCloud(); renderOverview();
+    }
+
+    // education
+    function setEduForm(i, e) {
+      document.getElementById("e-index").value = String(i);
+      document.getElementById("e-school").value = e.school || "";
+      document.getElementById("e-program").value = e.program || "";
+      document.getElementById("e-start").value = e.start || "";
+      document.getElementById("e-end").value = e.end || "";
+      document.getElementById("e-desc").value = e.description || "";
+      document.getElementById("edu-msg").textContent = "";
+      const f = document.getElementById("edu-form"); f.classList.add("open");
+      f.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    function openEduForm() { setEduForm(-1, {}); }
+    function editEdu(i) { ensureOverview(); setEduForm(i, data.overview.education[i]); }
+    function closeEduForm() { document.getElementById("edu-form").classList.remove("open"); }
+    function saveEdu() {
+      ensureOverview();
+      const school = document.getElementById("e-school").value.trim();
+      const program = document.getElementById("e-program").value.trim();
+      if (!school && !program) { document.getElementById("edu-msg").textContent = "Please enter a school or program."; return; }
+      const entry = {
+        school, program,
+        start: document.getElementById("e-start").value.trim(),
+        end: document.getElementById("e-end").value.trim(),
+        description: document.getElementById("e-desc").value.trim()
+      };
+      const idx = parseInt(document.getElementById("e-index").value, 10);
+      if (idx >= 0) data.overview.education[idx] = entry; else data.overview.education.push(entry);
+      saveCloud(); closeEduForm(); renderOverview();
+    }
+    function deleteEdu(i) {
+      if (!confirm("Delete this education entry?")) return;
+      ensureOverview(); data.overview.education.splice(i, 1); saveCloud(); renderOverview();
+    }
+
     // ---- backup (optional safety net — downloads a copy of your data) ----
     function backupData() {
-      const out = { certifications: data.certifications, projects: data.projects };
+      const out = { certifications: data.certifications, projects: data.projects, overview: data.overview };
       const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
