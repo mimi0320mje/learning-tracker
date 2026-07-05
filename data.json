@@ -55,6 +55,13 @@
       "date": "June 2026",
       "tech": "HTML, CSS, JavaScript, PWA, OpenStreetMap",
       "description": "A free worldwide parking price-comparison app. Detects your location, shows nearby car parks on a map sorted by nearest or cheapest, and a Navigate button opens Google Maps with your route pre-filled. Verified prices for Birmingham, with locations everywhere from OpenStreetMap."
+    },
+    {
+      "name": "Nova Calendar",
+      "link": "https://mimi0320mje.github.io/nova-calendar/",
+      "date": "July 2026",
+      "tech": "HTML, CSS, JavaScript, PWA, Firebase, GitHub Actions",
+      "description": "A personal calendar web app with reliable push reminders — five minutes before each event and a 9 AM daily summary, or a fresh, never-repeating good-morning quote on empty days. Features real-time cloud sync across devices, a drifting-dots animated background that dodges your cursor, and a free serverless reminder engine running on GitHub Actions."
     }
   ]
 }
