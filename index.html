@@ -231,6 +231,8 @@
     .cert-card h3 a { color: var(--text); text-decoration: none; }
     .cert-card h3 a:hover { color: var(--accent); }
     .cert-card .date { color: var(--muted); font-size: 13px; }
+    .cert-card .cert-issuer { color: var(--text); font-size: 13px; margin-bottom: 4px; }
+    .cert-card .cred-id { color: var(--muted); font-size: 12px; margin-top: 4px; }
     .cert-card .link-row { margin-top: 12px; }
     .cert-card .link-row a {
       color: var(--accent);
@@ -422,9 +424,7 @@
 
     <!-- CERTIFICATIONS -->
     <section class="panel" id="panel-certifications">
-      <div class="subtabs" id="cert-subtabs">
-        <button class="subtab active" data-cat="AI" onclick="switchCat('AI')">AI</button>
-      </div>
+      <div class="subtabs" id="cert-subtabs"></div>
 
       <div class="section-head">
         <div>
@@ -439,16 +439,26 @@
         <input type="hidden" id="cert-index" value="-1" />
         <div class="field">
           <label for="f-name">Certification name</label>
-          <input type="text" id="f-name" placeholder="e.g. DeepLearning.AI — Machine Learning Specialization" />
+          <input type="text" id="f-name" placeholder="e.g. Salesforce Certified Administrator" />
         </div>
         <div class="row">
           <div class="field">
-            <label for="f-link">Link (URL)</label>
+            <label for="f-issuer">Issuer (optional)</label>
+            <input type="text" id="f-issuer" placeholder="e.g. Salesforce" />
+          </div>
+          <div class="field">
+            <label for="f-date">Date</label>
+            <input type="date" id="f-date" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="f-link">Link / Show credential (optional)</label>
             <input type="url" id="f-link" placeholder="https://..." />
           </div>
           <div class="field">
-            <label for="f-date">Completion date</label>
-            <input type="date" id="f-date" />
+            <label for="f-credid">Credential ID (optional)</label>
+            <input type="text" id="f-credid" placeholder="e.g. 3567643" />
           </div>
         </div>
         <div class="msg error" id="form-msg"></div>
@@ -779,13 +789,20 @@
       ]
     };
 
+    // Seeded Salesforce certification — shown until an edited version is saved to the cloud.
+    const DEFAULT_SALESFORCE_CERTS = [
+      { name: "Salesforce Certified Administrator", issuer: "Salesforce", date: "2023-07-29", credId: "3567643", link: "" }
+    ];
+    const CATEGORY_ORDER = ["Salesforce", "AI"]; // sub-tab display order
+
     let data = { certifications: { AI: [] }, projects: [], overview: null };
-    let currentCat = "AI";
+    let currentCat = "Salesforce";
     let cloudReady = false; // true once the Firestore document exists
 
     function normalizeData() {
-      if (!data.certifications) data.certifications = { AI: [] };
-      if (!data.certifications.AI) data.certifications.AI = [];
+      if (!data.certifications) data.certifications = {};
+      if (!Array.isArray(data.certifications.AI)) data.certifications.AI = [];
+      if (!Array.isArray(data.certifications.Salesforce)) data.certifications.Salesforce = JSON.parse(JSON.stringify(DEFAULT_SALESFORCE_CERTS));
       if (!Array.isArray(data.projects)) data.projects = [];
       if (!data.overview) data.overview = JSON.parse(JSON.stringify(DEFAULT_OVERVIEW));
       if (!Array.isArray(data.overview.links)) data.overview.links = [];
@@ -858,7 +875,19 @@
       return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
     }
 
+    function renderSubtabs() {
+      const cats = Object.keys(data.certifications || {});
+      const ordered = CATEGORY_ORDER.filter(c => cats.includes(c))
+        .concat(cats.filter(c => !CATEGORY_ORDER.includes(c)));
+      if (!ordered.includes(currentCat)) currentCat = ordered[0] || "AI";
+      document.getElementById("cert-subtabs").innerHTML = ordered.map(c =>
+        '<button class="subtab' + (c === currentCat ? ' active' : '') + '" data-cat="' + escapeHtml(c) +
+        '" onclick="switchCat(\'' + escapeHtml(c) + '\')">' + escapeHtml(c) + '</button>'
+      ).join("");
+    }
+
     function renderCerts() {
+      renderSubtabs();
       const list = data.certifications[currentCat] || [];
       const grid = document.getElementById("cert-grid");
       document.getElementById("cat-title").textContent = currentCat + " Certifications";
@@ -874,11 +903,13 @@
           ? '<a href="' + escapeHtml(c.link) + '" target="_blank" rel="noopener">' + name + '</a>'
           : name;
         const linkRow = c.link
-          ? '<div class="link-row"><a href="' + escapeHtml(c.link) + '" target="_blank" rel="noopener">View credential ↗</a></div>'
+          ? '<div class="link-row"><a href="' + escapeHtml(c.link) + '" target="_blank" rel="noopener">Show credential ↗</a></div>'
           : '';
         return '<div class="cert-card">' +
           '<h3>' + titleHtml + '</h3>' +
-          (c.date ? '<div class="date">Completed ' + escapeHtml(fmtDate(c.date)) + '</div>' : '') +
+          (c.issuer ? '<div class="cert-issuer">' + escapeHtml(c.issuer) + '</div>' : '') +
+          (c.date ? '<div class="date">' + (c.issuer ? 'Issued ' : 'Completed ') + escapeHtml(fmtDate(c.date)) + '</div>' : '') +
+          (c.credId ? '<div class="cred-id">Credential ID ' + escapeHtml(c.credId) + '</div>' : '') +
           linkRow +
           '<div class="card-actions">' +
             '<button class="btn small" onclick="editCert(' + i + ')">Edit</button>' +
@@ -988,8 +1019,10 @@
     function openCertForm() {
       document.getElementById("cert-index").value = "-1";
       document.getElementById("f-name").value = "";
+      document.getElementById("f-issuer").value = "";
       document.getElementById("f-link").value = "";
       document.getElementById("f-date").value = "";
+      document.getElementById("f-credid").value = "";
       document.getElementById("form-msg").textContent = "";
       document.getElementById("cert-form").classList.add("open");
       document.getElementById("f-name").focus();
@@ -1000,8 +1033,10 @@
       const c = data.certifications[currentCat][i];
       document.getElementById("cert-index").value = String(i);
       document.getElementById("f-name").value = c.name || "";
+      document.getElementById("f-issuer").value = c.issuer || "";
       document.getElementById("f-link").value = c.link || "";
       document.getElementById("f-date").value = c.date || "";
+      document.getElementById("f-credid").value = c.credId || "";
       document.getElementById("form-msg").textContent = "";
       document.getElementById("cert-form").classList.add("open");
       document.getElementById("f-name").focus();
@@ -1010,11 +1045,13 @@
 
     function saveCert() {
       const name = document.getElementById("f-name").value.trim();
+      const issuer = document.getElementById("f-issuer").value.trim();
       const link = document.getElementById("f-link").value.trim();
       const date = document.getElementById("f-date").value;
+      const credId = document.getElementById("f-credid").value.trim();
       if (!name) { document.getElementById("form-msg").textContent = "Please enter a name."; return; }
       const idx = parseInt(document.getElementById("cert-index").value, 10);
-      const entry = { name, link, date };
+      const entry = { name, issuer, link, date, credId };
       if (idx >= 0) data.certifications[currentCat][idx] = entry;
       else data.certifications[currentCat].push(entry);
       saveCloud();
