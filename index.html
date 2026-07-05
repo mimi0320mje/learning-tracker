@@ -373,6 +373,13 @@
     .tl-sub { color: var(--accent); font-size: 13px; margin-top: 2px; }
     .tl-list { margin: 10px 0 0; padding-left: 18px; color: var(--muted); font-size: 14px; line-height: 1.6; }
     .tl-list li { margin-bottom: 5px; }
+    .sub-h { font-size: 14px; font-weight: 600; color: var(--muted); margin: 18px 0 10px; }
+    .lang-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .lang { font-size: 12px; background: var(--surface); border: 1px solid var(--border); padding: 5px 12px; border-radius: 999px; color: var(--text); }
+    .lang b { font-weight: 600; }
+    .lang .lvl { color: var(--muted); }
+    .lang.fluent { border-color: var(--accent); }
+    .lang.fluent .lvl { color: var(--accent); }
 
     @media (max-width: 600px) {
       header.hero h1 { font-size: 30px; }
@@ -621,6 +628,38 @@
       </div>
 
       <div class="timeline" id="edu-timeline"></div>
+
+      <!-- Skills & languages -->
+      <div id="skills-section">
+        <div class="section-head" style="margin-top:28px">
+          <div>
+            <h2>Skills &amp; languages</h2>
+            <p>Tools I work with and languages I speak.</p>
+          </div>
+          <button class="btn primary small editor-only" onclick="openSkillsForm()">✎ Edit</button>
+        </div>
+
+        <div class="cert-form" id="skills-form">
+          <div class="field">
+            <label for="s-skills">Skills — comma separated</label>
+            <input type="text" id="s-skills" placeholder="Salesforce Administration, Jira, …" />
+          </div>
+          <div class="field">
+            <label for="s-langs">Languages — name|level, comma separated</label>
+            <input type="text" id="s-langs" placeholder="English|Fluent, Mandarin|Fluent, German|Beginner" />
+          </div>
+          <div class="msg error" id="skills-msg"></div>
+          <div class="modal-actions">
+            <button class="btn ghost small" onclick="closeSkillsForm()">Cancel</button>
+            <button class="btn primary small" onclick="saveSkills()">Save</button>
+          </div>
+        </div>
+
+        <h3 class="sub-h">Skills</h3>
+        <div class="tags" id="ov-skills"></div>
+        <h3 class="sub-h">Languages</h3>
+        <div class="lang-list" id="ov-languages"></div>
+      </div>
     </section>
   </main>
 
@@ -724,6 +763,19 @@
       ],
       education: [
         { school: "University of Warwick", program: "BSc Chemistry", start: "", end: "2022", description: "" }
+      ],
+      skills: [
+        "Salesforce Administration", "Service Cloud (SFSC)", "Marketing Cloud (SFMC)",
+        "Salesforce Flows", "Validation Rules", "Field-level Security",
+        "Jira", "UAT & Deployment", "Requirements Gathering (URS)"
+      ],
+      languages: [
+        { name: "English", level: "Fluent" },
+        { name: "Mandarin", level: "Fluent" },
+        { name: "German", level: "Beginner" },
+        { name: "French", level: "Beginner" },
+        { name: "Korean", level: "Beginner" },
+        { name: "Japanese", level: "Beginner" }
       ]
     };
 
@@ -739,6 +791,8 @@
       if (!Array.isArray(data.overview.links)) data.overview.links = [];
       if (!Array.isArray(data.overview.work)) data.overview.work = [];
       if (!Array.isArray(data.overview.education)) data.overview.education = [];
+      if (!Array.isArray(data.overview.skills)) data.overview.skills = [];
+      if (!Array.isArray(data.overview.languages)) data.overview.languages = [];
     }
 
     // ---- realtime load from the cloud (live across all devices/visitors) ----
@@ -923,7 +977,7 @@
       document.getElementById("edit-btn").textContent = "✎ Edit";
       closeCertForm();
       closeProjForm();
-      closeAboutForm(); closeWorkForm(); closeEduForm();
+      closeAboutForm(); closeWorkForm(); closeEduForm(); closeSkillsForm();
       try { await auth.signOut(); } catch (e) { /* ignore */ }
       renderCerts();
       renderProjects();
@@ -1032,6 +1086,8 @@
       if (!Array.isArray(data.overview.links)) data.overview.links = [];
       if (!Array.isArray(data.overview.work)) data.overview.work = [];
       if (!Array.isArray(data.overview.education)) data.overview.education = [];
+      if (!Array.isArray(data.overview.skills)) data.overview.skills = [];
+      if (!Array.isArray(data.overview.languages)) data.overview.languages = [];
     }
 
     function dateRange(s, e) {
@@ -1085,6 +1141,41 @@
       document.getElementById("edu-timeline").innerHTML = edu.length
         ? edu.map((e, i) => timelineItem({ title: e.program || e.school, sub: (e.program ? e.school : ""), start: e.start, end: e.end, desc: e.description, i, kind: "edu" })).join("")
         : overviewEmpty("education");
+
+      const skills = o.skills || [];
+      const langs = o.languages || [];
+      document.getElementById("ov-skills").innerHTML = skills.filter(Boolean)
+        .map(s => '<span class="tag">' + escapeHtml(s) + '</span>').join("");
+      document.getElementById("ov-languages").innerHTML = langs.filter(l => l && l.name)
+        .map(l => {
+          const fluent = /fluent|native/i.test(l.level || "");
+          return '<span class="lang' + (fluent ? " fluent" : "") + '"><b>' + escapeHtml(l.name) + '</b>' +
+            (l.level ? ' <span class="lvl">· ' + escapeHtml(l.level) + '</span>' : '') + '</span>';
+        }).join("");
+      // Hide the whole section for visitors if there's nothing to show.
+      const hasContent = skills.length || langs.length;
+      document.getElementById("skills-section").style.display =
+        (hasContent || document.body.classList.contains("editing")) ? "" : "none";
+    }
+
+    // skills & languages
+    function openSkillsForm() {
+      ensureOverview();
+      document.getElementById("s-skills").value = (data.overview.skills || []).join(", ");
+      document.getElementById("s-langs").value = (data.overview.languages || [])
+        .filter(l => l).map(l => (l.name || "") + "|" + (l.level || "")).join(", ");
+      document.getElementById("skills-msg").textContent = "";
+      document.getElementById("skills-form").classList.add("open");
+    }
+    function closeSkillsForm() { document.getElementById("skills-form").classList.remove("open"); }
+    function saveSkills() {
+      ensureOverview();
+      data.overview.skills = document.getElementById("s-skills").value.split(",").map(s => s.trim()).filter(Boolean);
+      data.overview.languages = document.getElementById("s-langs").value.split(",").map(s => s.trim()).filter(Boolean).map(pair => {
+        const k = pair.indexOf("|");
+        return k < 0 ? { name: pair, level: "" } : { name: pair.slice(0, k).trim(), level: pair.slice(k + 1).trim() };
+      });
+      saveCloud(); closeSkillsForm(); renderOverview();
     }
 
     // about
