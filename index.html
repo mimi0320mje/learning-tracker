@@ -646,7 +646,7 @@
           </div>
           <div class="field">
             <label for="s-langs">Languages — name|level, comma separated</label>
-            <input type="text" id="s-langs" placeholder="English|Fluent, Mandarin|Fluent, German|Beginner" />
+            <input type="text" id="s-langs" placeholder="Mandarin|Native, English|C1 (Advanced), German|A1 (Beginner)" />
           </div>
           <div class="msg error" id="skills-msg"></div>
           <div class="modal-actions">
@@ -770,12 +770,12 @@
         "Jira", "UAT & Deployment", "Requirements Gathering (URS)"
       ],
       languages: [
-        { name: "English", level: "Fluent" },
-        { name: "Mandarin", level: "Fluent" },
-        { name: "German", level: "Beginner" },
-        { name: "French", level: "Beginner" },
-        { name: "Korean", level: "Beginner" },
-        { name: "Japanese", level: "Beginner" }
+        { name: "Mandarin", level: "Native" },
+        { name: "English", level: "C1 (Advanced)" },
+        { name: "German", level: "A1 (Beginner)" },
+        { name: "French", level: "A1 (Beginner)" },
+        { name: "Korean", level: "A1 (Beginner)" },
+        { name: "Japanese", level: "A1 (Beginner)" }
       ]
     };
 
@@ -1148,7 +1148,7 @@
         .map(s => '<span class="tag">' + escapeHtml(s) + '</span>').join("");
       document.getElementById("ov-languages").innerHTML = langs.filter(l => l && l.name)
         .map(l => {
-          const fluent = /fluent|native/i.test(l.level || "");
+          const fluent = /fluent|native|bilingual|c1|c2/i.test(l.level || "");
           return '<span class="lang' + (fluent ? " fluent" : "") + '"><b>' + escapeHtml(l.name) + '</b>' +
             (l.level ? ' <span class="lvl">· ' + escapeHtml(l.level) + '</span>' : '') + '</span>';
         }).join("");
