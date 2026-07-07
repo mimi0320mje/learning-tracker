@@ -244,6 +244,8 @@
     .cert-card .desc { color: var(--muted); font-size: 14px; margin-top: 10px; }
     .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
     .tag { font-size: 11px; color: var(--accent); background: var(--accent-soft); padding: 3px 9px; border-radius: 999px; }
+    .cert-card .sf-list { color: var(--muted); font-size: 14px; margin: 12px 0 0; padding-left: 18px; }
+    .cert-card .sf-list li { margin-bottom: 7px; line-height: 1.5; }
     .card-actions { display: flex; gap: 8px; margin-top: 14px; }
 
     .empty {
@@ -473,6 +475,13 @@
 
     <!-- PROJECTS -->
     <section class="panel" id="panel-projects">
+      <div class="subtabs" id="proj-subtabs">
+        <button class="subtab active" data-view="web" onclick="switchProjView('web')">AI &amp; Web</button>
+        <button class="subtab" data-view="salesforce" onclick="switchProjView('salesforce')">Salesforce</button>
+      </div>
+
+      <!-- AI & Web projects (editable cards) -->
+      <div id="proj-web" class="proj-view">
       <div class="section-head">
         <div>
           <h2>Projects</h2>
@@ -514,6 +523,40 @@
       </div>
 
       <div class="grid" id="proj-grid"></div>
+      </div><!-- /proj-web -->
+
+      <!-- Salesforce (confidential, static — not editable) -->
+      <div id="proj-salesforce" class="proj-view" style="display:none">
+        <div class="section-head">
+          <div>
+            <h2>Salesforce Administration &amp; Development</h2>
+            <p>Enterprise work — details kept confidential.</p>
+          </div>
+        </div>
+        <div class="cert-card">
+          <h3>Salesforce Administration &amp; Development (Enterprise, Confidential)</h3>
+          <div class="cert-issuer">Ongoing · live enterprise environment</div>
+          <p class="desc">Ongoing Salesforce administration and development within a live enterprise environment. Due to company confidentiality policy, specific project artefacts cannot be shared publicly — but my day-to-day work includes:</p>
+          <ul class="sf-list">
+            <li>Declarative automation — Flows, validation rules, and process automation</li>
+            <li>Apex development for custom logic beyond point-and-click configuration</li>
+            <li>Service Cloud — Email-to-Case setup and configuration</li>
+            <li>UI design — page layouts and Lightning record pages (Lightning App Builder)</li>
+            <li>Reports and dashboards to support business decision-making</li>
+            <li>User account setup and access management on a daily basis</li>
+          </ul>
+          <div class="tags">
+            <span class="tag">Salesforce</span>
+            <span class="tag">Flow</span>
+            <span class="tag">Apex</span>
+            <span class="tag">Validation Rules</span>
+            <span class="tag">Lightning App Builder</span>
+            <span class="tag">Reports &amp; Dashboards</span>
+            <span class="tag">Service Cloud</span>
+            <span class="tag">User Management</span>
+          </div>
+        </div>
+      </div><!-- /proj-salesforce -->
     </section>
 
     <!-- OVERVIEW -->
@@ -963,8 +1006,13 @@
     }
     function switchCat(cat) {
       currentCat = cat;
-      document.querySelectorAll(".subtab").forEach(s => s.classList.toggle("active", s.dataset.cat === cat));
+      document.querySelectorAll("#cert-subtabs .subtab").forEach(s => s.classList.toggle("active", s.dataset.cat === cat));
       renderCerts();
+    }
+    function switchProjView(view) {
+      document.getElementById("proj-web").style.display = (view === "web") ? "" : "none";
+      document.getElementById("proj-salesforce").style.display = (view === "salesforce") ? "" : "none";
+      document.querySelectorAll("#proj-subtabs .subtab").forEach(s => s.classList.toggle("active", s.dataset.view === view));
     }
 
     // ---- edit mode (Firebase Auth) ----
