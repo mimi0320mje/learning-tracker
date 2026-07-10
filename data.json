@@ -10,6 +10,13 @@
         "name": "Anthropic — Claude 101",
         "link": "https://verify.skilljar.com/c/pz3tyikxp7rq",
         "date": "2026-07-04"
+      },
+      {
+        "name": "AI Fluency: Framework & Foundations",
+        "issuer": "Anthropic",
+        "link": "https://verify.skilljar.com/c/4e6pu44uw6cs",
+        "credId": "4e6pu44uw6cs",
+        "date": "2026-07-09"
       }
     ]
   },
@@ -62,6 +69,12 @@
       "date": "July 2026",
       "tech": "HTML, CSS, JavaScript, PWA, Firebase, GitHub Actions",
       "description": "A personal calendar web app with reliable push reminders — five minutes before each event and a 9 AM daily summary, or a fresh, never-repeating good-morning quote on empty days. Features real-time cloud sync across devices, a drifting-dots animated background that dodges your cursor, and a free serverless reminder engine running on GitHub Actions."
+    },
+    {
+      "name": "Automated Trading Bot",
+      "date": "July 2026",
+      "tech": "Python, Lumibot, Alpaca, GitHub Actions, Telegram",
+      "description": "A hands-free trading bot that runs itself in the cloud with simulated money (paper trading — no real funds). It follows a rules-based strategy across a basket of selected stocks, automatically deploys and monthly-rebalances the portfolio on a schedule via GitHub Actions, and sends a plain-English daily performance report to Telegram (each holding's profit/loss, total value and day change). Includes automated stop-loss and trailing-stop safeguards, and a heartbeat monitor that alerts if a scheduled run is missed."
     }
   ]
 }
