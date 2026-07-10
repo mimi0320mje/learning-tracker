@@ -476,12 +476,12 @@
     <!-- PROJECTS -->
     <section class="panel" id="panel-projects">
       <div class="subtabs" id="proj-subtabs">
-        <button class="subtab active" data-view="web" onclick="switchProjView('web')">AI &amp; Web</button>
-        <button class="subtab" data-view="salesforce" onclick="switchProjView('salesforce')">Salesforce</button>
+        <button class="subtab active" data-view="salesforce" onclick="switchProjView('salesforce')">Salesforce</button>
+        <button class="subtab" data-view="web" onclick="switchProjView('web')">AI &amp; Web</button>
       </div>
 
       <!-- AI & Web projects (editable cards) -->
-      <div id="proj-web" class="proj-view">
+      <div id="proj-web" class="proj-view" style="display:none">
       <div class="section-head">
         <div>
           <h2>Projects</h2>
@@ -526,7 +526,7 @@
       </div><!-- /proj-web -->
 
       <!-- Salesforce (confidential, static — not editable) -->
-      <div id="proj-salesforce" class="proj-view" style="display:none">
+      <div id="proj-salesforce" class="proj-view">
         <div class="section-head">
           <div>
             <h2>Salesforce Administration &amp; Development</h2>
